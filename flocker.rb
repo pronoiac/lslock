@@ -1,14 +1,8 @@
 filename = "test"
 
 # let's avoid opening the file as writable if it exists - updates mtime
-if File.exists?(filename)
-  # open as readonly
-  mode = "r"
-else
-  # create file
-  mode = "w"
-end
-mode = "w"
+mode = (File.exists?(filename) ? "r" : "w")
+
 file = File.open(filename, mode)
 
 print "Acquiring lock... "
