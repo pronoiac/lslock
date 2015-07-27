@@ -20,31 +20,23 @@ File.open(lockfilename).each_line do |line|
   @locks[lock_inode.to_i] << [lock_pid.to_i] # array of pid, allows for mult locks per file
 end
 
-# p locks
 
 # do a depth-first search / DFS on the dir spec on cmd line
 def recurse(dir)
-  #Dir.chdir(dir)
-  #current_dir = Dir.pwd
   Dir.foreach(dir) do |entry|
     filepath = File.join(dir, entry)
-    puts entry
     next if entry == "." or entry == ".."
     inode = File.stat(filepath).ino
-    p inode
     if @locks.has_key?(inode)
       @locked_files[inode] = filepath #File.join(current_dir, entry)
-      # puts "match: #{inode} - #{entry}"
     end # /locks.has_key?
     if File.directory?(filepath)
-      puts "recursing: #{entry}"
       recurse(filepath)
     end # /directory?
   end # /Dir.foreach
 end # /recurse
 
 recurse(dirname)
-#p @locked_files
 
 puts "# pid(s)\tfilename"
 @locked_files.each_pair { |inode, filepath|
