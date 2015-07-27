@@ -25,7 +25,12 @@ end
 def recurse(dir)
   Dir.foreach(dir) do |entry|
     filepath = File.join(dir, entry)
+    
+    # items to avoid:
     next if entry == "." or entry == ".."
+    next if File.symlink?(filepath) # punting re: broken symlinks
+    next unless File.stat(filepath).readable?
+    
     inode = File.stat(filepath).ino
     if @locks.has_key?(inode)
       @locked_files[inode] = filepath #File.join(current_dir, entry)
