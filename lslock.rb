@@ -1,7 +1,11 @@
 #!/usr/bin/env ruby
 
+dirname = ARGV[0] || "./"
+
 # read /proc/locks
 lockfilename = "/proc/locks"
+locked_files = {}
+seen_dirs = {}
 
 if !File.exists?(lockfilename)
   puts "Error: #{lockfilename} doesn't exist! Exiting."
@@ -17,7 +21,23 @@ File.open(lockfilename).each_line do |line|
   locks[lock_inode.to_i] << [lock_pid.to_i] # array of pid, allows for mult locks per file
 end
 
-#p locks
+# p locks
 
 # do a depth-first search / DFS on the dir spec on cmd line
+def recurse(dir, locks, locked_files)
+  Dir.chdir(dir)
+  current_dir = Dir.pwd
+  Dir.foreach(".") do |entry|
+    #puts entry
+    inode = File.stat(entry).ino
+    #p inode
+    if locks.has_key?(inode)
+      locked_files[inode] = File.join(current_dir, entry)
+      puts "match: #{inode} - #{entry}"
+    end # /locks.has_key?
+  end # /Dir.foreach
+end # /recurse
 
+recurse(dirname, locks, locked_files)
+#p locks
+#p locked_files
