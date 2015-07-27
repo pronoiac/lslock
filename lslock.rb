@@ -5,7 +5,6 @@ dirname = ARGV[0] || "./"
 # read /proc/locks
 lockfilename = "/proc/locks"
 @locked_files = {}
-@seen_dirs = Hash.new(false)
 
 if !File.exists?(lockfilename)
   puts "Error: #{lockfilename} doesn't exist! Exiting."
@@ -38,11 +37,8 @@ def recurse(dir)
       # puts "match: #{inode} - #{entry}"
     end # /locks.has_key?
     if File.directory?(filepath)
-      if !@seen_dirs.has_key?(inode)
-        # @seen_dirs[inode] = true
-        puts "recursing: #{entry}"
-        recurse(filepath)
-      end
+      puts "recursing: #{entry}"
+      recurse(filepath)
     end # /directory?
   end # /Dir.foreach
 end # /recurse
