@@ -25,22 +25,23 @@ end
 
 # do a depth-first search / DFS on the dir spec on cmd line
 def recurse(dir)
-  Dir.chdir(dir)
-  current_dir = Dir.pwd
-  Dir.foreach(".") do |entry|
-    #puts entry
+  #Dir.chdir(dir)
+  #current_dir = Dir.pwd
+  Dir.foreach(dir) do |entry|
+    filepath = File.join(dir, entry)
+    puts entry
     next if entry == "." or entry == ".."
-    inode = File.stat(entry).ino
-    #p inode
+    inode = File.stat(filepath).ino
+    p inode
     if @locks.has_key?(inode)
-      @locked_files[inode] = File.join(current_dir, entry)
+      @locked_files[inode] = filepath #File.join(current_dir, entry)
       # puts "match: #{inode} - #{entry}"
     end # /locks.has_key?
-    if File.directory?(entry)
+    if File.directory?(filepath)
       if !@seen_dirs.has_key?(inode)
-        @seen_dirs[inode] = true
+        # @seen_dirs[inode] = true
         puts "recursing: #{entry}"
-        recurse(entry)
+        recurse(filepath)
       end
     end # /directory?
   end # /Dir.foreach
